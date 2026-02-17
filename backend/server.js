@@ -12,19 +12,36 @@ const pollRoutes = require('./routes/pollRoutes');
 const app = express();
 const httpServer = createServer(app);
 
+// CORS configuration - allow all Vercel preview deployments
+const getCorsOrigin = () => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  if (isProduction) {
+    return (origin, callback) => {
+      const allowedPatterns = [
+        /^https:\/\/.*\.vercel\.app$/,
+        /^http:\/\/localhost(:\d+)?$/
+      ];
+      
+      const isAllowed = allowedPatterns.some(pattern => pattern.test(origin));
+      if (isAllowed || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    };
+  }
+  return 'http://localhost:5173';
+};
+
 // Socket.io setup with CORS
 const io = new Server(httpServer, {
-  cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    methods: ['GET', 'POST'],
-    credentials: true
-  }
+  cors: getCorsOrigin()
 });
 
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: getCorsOrigin(),
   credentials: true
 }));
 app.use(express.json());
