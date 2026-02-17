@@ -1,33 +1,29 @@
 # PollStream - Real-Time Polling Application
 
-A full-stack web application that enables users to create polls, share them via links, and view results updating in real-time as votes are cast.
+Pollstream is a full-stack web application that enables users to create polls, share them via links, and view results updating in real-time as votes are cast.
 
-## 🚀 Live Demo
+## Live Link
 
-**Frontend:** [Your Vercel URL here]  
-**Backend:** [Your Render URL here]
+Frontend :- 
+Backend :-  
 
-## 📹 Demo Video
+## Features
 
-[Link to demo video if available]
+- **Poll Creation**
+- **Shareable Links**
+- **Real-Time Updates**
+- **Anti-Abuse Protection**
+- **Mobile Responsive**
+- **No Authentication Required**
 
-## ✨ Features
-
-- **Poll Creation**: Create polls with custom questions and 2-10 options
-- **Shareable Links**: Each poll gets a unique URL that can be shared with anyone
-- **Real-Time Updates**: Results update instantly across all viewers using WebSockets
-- **Anti-Abuse Protection**: Multiple mechanisms to prevent vote manipulation
-- **Mobile Responsive**: Works seamlessly on desktop, tablet, and mobile devices
-- **No Authentication Required**: Simple and accessible - no sign-up needed
-
-## 🛡️ Anti-Abuse Mechanisms
+## Anti-Abuse Mechanisms
 
 ### 1. Browser Fingerprinting
-**What it prevents:** Multiple votes from the same device/browser  
-**How it works:** 
-- Uses FingerprintJS library to generate a unique identifier based on browser characteristics (user agent, screen resolution, canvas fingerprint, etc.)
+
+- FingerprintJS library is used to generate a unique identifier based on browser characteristics (user agent, screen resolution, canvas fingerprint, etc.)
 - Fingerprint is stored and checked before allowing votes
 - Each fingerprint can only vote once per poll
+- This results in prevention of Multiple votes from the same device/browser
 
 **Limitations:**
 - Can be bypassed by using different browsers or devices
@@ -35,11 +31,10 @@ A full-stack web application that enables users to create polls, share them via 
 - Browser data clearing resets the fingerprint
 
 ### 2. IP Address + Time-Based Rate Limiting
-**What it prevents:** Vote flooding from the same network/IP address  
-**How it works:**
-- Captures the client's IP address (handles proxy headers for deployment)
-- Stores IP with timestamp in the database
-- Blocks duplicate votes from the same IP within a 24-hour window
+
+- First, the client's IP address is captured (handles proxy headers for deployment)
+- It is then stored with timestamp in the database
+- Blocks duplicate votes from the same IP are blocked within a 24-hour window
 - Prevents rapid vote manipulation even if fingerprint is changed
 
 **Limitations:**
@@ -53,7 +48,11 @@ Both mechanisms work together:
 - IP blocking prevents switching browsers on the same network
 - Makes casual vote manipulation significantly harder
 
-## 🏗️ Tech Stack
+## Tech Stack
+
+I have used MERN stack with Socket.io for this project mainly because of two reasons :- 
+(i) I already had experience with this framework
+(ii) It was possible to develop the project with this framework
 
 ### Frontend
 - **React 18** - UI library
@@ -73,7 +72,12 @@ Both mechanisms work together:
 - **Helmet** - Security middleware
 - **express-rate-limit** - Rate limiting
 
-## 📁 Project Structure
+### Deployment
+- As for deployment I deployed the Backend on Railway and Frontend on Vercel
+- Reason :- Socket.IO needs a long-running, stateful server, whereas Vercel is designed for stateless, short-lived serverless functions.
+(* this was suggested by AI btw)
+
+## Project Structure
 
 ```
 polling-app/
@@ -112,128 +116,7 @@ polling-app/
 └── README.md
 ```
 
-## 🚦 Getting Started
-
-### Prerequisites
-- Node.js (v18 or higher)
-- MongoDB (local or Atlas account)
-- npm or yarn
-
-### Backend Setup
-
-1. **Navigate to backend directory**
-```bash
-cd backend
-```
-
-2. **Install dependencies**
-```bash
-npm install
-```
-
-3. **Configure environment variables**
-```bash
-cp .env.example .env
-```
-
-Edit `.env` file:
-```env
-MONGODB_URI=mongodb://localhost:27017/polling-app
-PORT=5000
-NODE_ENV=development
-FRONTEND_URL=http://localhost:5173
-```
-
-For MongoDB Atlas:
-```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/polling-app
-```
-
-4. **Start the server**
-```bash
-# Development mode with auto-reload
-npm run dev
-
-# Production mode
-npm start
-```
-
-Server will run on `http://localhost:5000`
-
-### Frontend Setup
-
-1. **Navigate to frontend directory**
-```bash
-cd frontend
-```
-
-2. **Install dependencies**
-```bash
-npm install
-```
-
-3. **Configure environment variables**
-```bash
-cp .env.example .env
-```
-
-Edit `.env` file:
-```env
-VITE_API_BASE_URL=http://localhost:5000
-VITE_SOCKET_URL=http://localhost:5000
-```
-
-4. **Start development server**
-```bash
-npm run dev
-```
-
-Frontend will run on `http://localhost:5173`
-
-## 🌐 Deployment
-
-### Backend Deployment (Render)
-
-1. **Create Render account** at [render.com](https://render.com)
-
-2. **Create new Web Service**
-   - Connect your GitHub repository
-   - Select the backend directory
-   - Build command: `npm install`
-   - Start command: `npm start`
-
-3. **Add environment variables:**
-   - `MONGODB_URI` - Your MongoDB Atlas connection string
-   - `PORT` - 5000 (or leave blank for default)
-   - `NODE_ENV` - production
-   - `FRONTEND_URL` - Your frontend URL (e.g., https://your-app.vercel.app)
-
-4. **Deploy** and note your backend URL
-
-### Frontend Deployment (Vercel)
-
-1. **Create Vercel account** at [vercel.com](https://vercel.com)
-
-2. **Import your project**
-   - Connect GitHub repository
-   - Framework Preset: Vite
-   - Root Directory: `frontend`
-
-3. **Add environment variables:**
-   - `VITE_API_BASE_URL` - Your backend URL (e.g., https://your-backend.onrender.com)
-   - `VITE_SOCKET_URL` - Same as backend URL
-
-4. **Deploy** and your app is live!
-
-### MongoDB Atlas Setup
-
-1. Create free account at [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
-2. Create a new cluster
-3. Database Access: Create a database user
-4. Network Access: Add `0.0.0.0/0` (allow from anywhere)
-5. Get connection string and update environment variables
-
-## 🧪 Edge Cases Handled
+## Edge Cases Handled
 
 1. **Invalid Poll IDs**
    - Returns 404 error with user-friendly message
@@ -250,7 +133,7 @@ Frontend will run on `http://localhost:5173`
    - Continues showing cached data during brief disconnections
 
 4. **Concurrent Votes**
-   - Uses MongoDB atomic operations (`$inc`)
+   - Uses MongoDB atomic operations
    - Prevents race conditions in vote counting
    - Ensures accurate tallies under high load
 
@@ -265,26 +148,23 @@ Frontend will run on `http://localhost:5173`
    - Enforced on both frontend and backend
 
 7. **XSS Prevention**
-   - Input sanitization
    - Text content displayed safely
    - No HTML rendering in user input
 
 8. **Network Errors**
    - Retry logic for failed requests
    - User-friendly error messages
-   - Graceful degradation
 
 9. **Browser Compatibility**
    - Fallback for browsers without WebSocket support
    - LocalStorage fallback for fingerprinting
-   - Polyfills included in build
 
 10. **Mobile Responsiveness**
     - Fully responsive design
     - Touch-friendly interfaces
     - Optimized for small screens
 
-## 🔧 API Endpoints
+## API Endpoints
 
 ### Create Poll
 ```http
@@ -358,7 +238,9 @@ Response: {
 ### Server → Client
 - `voteUpdate` - Broadcast updated poll results to all viewers
 
-## ⚠️ Known Limitations
+## Limitations & Scope for Improvement
+
+### Current Limitations
 
 1. **Authentication**
    - No user accounts or authentication system
@@ -366,7 +248,7 @@ Response: {
    - No poll ownership or editing capabilities
 
 2. **Anti-Abuse Circumvention**
-   - Determined users can bypass with VPNs and browser switching
+   - Determined users can bypass defenses with VPNs and browser switching
    - Not suitable for high-stakes voting
    - Consider adding CAPTCHA for critical use cases
 
@@ -383,64 +265,26 @@ Response: {
 5. **Data Privacy**
    - IP addresses stored in database
    - Browser fingerprints logged
-   - No GDPR compliance features
 
 6. **Vote Type**
    - Only single-choice voting supported
    - No multiple-choice or ranked-choice options
    - No "other" option with text input
 
-## 🚀 Future Improvements
+### Future Improvements
 
-- [ ] User authentication and poll ownership
-- [ ] Poll editing and deletion
-- [ ] Multiple choice voting
-- [ ] Poll expiration dates
-- [ ] Results analytics (vote times, geographic data)
-- [ ] CAPTCHA integration
-- [ ] Export results (CSV, PDF)
-- [ ] Poll templates
-- [ ] Custom themes/branding
-- [ ] Comment sections
-- [ ] Social media sharing previews
-- [ ] Email notifications
-- [ ] Rate limiting per user account
-- [ ] Admin dashboard
-- [ ] Redis caching for popular polls
-
-## 🐛 Troubleshooting
-
-### Backend won't start
-- Ensure MongoDB is running
-- Check `MONGODB_URI` in `.env`
-- Verify port 5000 is available
-
-### Frontend can't connect to backend
-- Check `VITE_API_BASE_URL` in `.env`
-- Ensure backend is running
-- Verify CORS settings in `server.js`
-
-### Real-time updates not working
-- Check browser console for WebSocket errors
-- Verify `VITE_SOCKET_URL` matches backend
-- Ensure Socket.io is properly initialized
-
-### Votes not being recorded
-- Check browser console for errors
-- Verify fingerprint is being generated
-- Check backend logs for validation errors
-
-## 📄 License
-
-MIT License - feel free to use this project for learning or production
-
-## 👨‍💻 Author
-
-[Your Name]
-
-## 🙏 Acknowledgments
-
-- FingerprintJS for browser fingerprinting
-- Socket.io for real-time communication
-- MongoDB Atlas for database hosting
-- Render and Vercel for deployment platforms
+- **User authentication and poll ownership** - Allow users to manage their polls
+- **Poll editing and deletion** - Edit questions/options and remove polls
+- **Multiple choice voting** - Support multiple selections per user
+- **Poll expiration dates** - Auto-close polls after set duration
+- **Results analytics** - Vote times, geographic data, demographic insights`
+- **Export results** - Download results as CSV and PDF
+- **Social media sharing previews** - Rich preview cards for better sharing
+- **Email notifications** - Notify users of poll results
+- **Custom themes/branding** - Personalize poll appearance
+- **Poll templates** - Pre-made poll structures for common use cases
+- **Comment sections** - Allow discussion on polls
+- **Advanced rate limiting** - Per-user account rate limiting
+- **Admin dashboard** - Manage and monitor polls
+- **Redis caching** - Cache popular polls for better performance
+- **CAPTCHA integration** - Enhanced bot prevention for critical polls
