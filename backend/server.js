@@ -139,23 +139,6 @@ io.on('connection', (socket) => {
 // Make io accessible to routes for emitting vote updates
 app.set('io', io);
 
-// Middleware to emit vote updates
-app.use((req, res, next) => {
-  const originalJson = res.json;
-  
-  res.json = function(data) {
-    // If this is a successful vote submission, emit to all clients in the poll room
-    if (req.path.includes('/vote') && req.method === 'POST' && data.success && data.poll) {
-      const pollId = req.params.id;
-      io.to(pollId).emit('voteUpdate', data.poll);
-    }
-    
-    return originalJson.call(this, data);
-  };
-  
-  next();
-});
-
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ 

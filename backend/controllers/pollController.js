@@ -70,7 +70,7 @@ const getPoll = async (req, res) => {
     const { id } = req.params;
     const { fingerprint } = req.query;
 
-    const poll = await Poll.findById(id);
+    const poll = await Poll.findById(id).lean();
 
     if (!poll) {
       return res.status(404).json({ 
@@ -90,7 +90,7 @@ const getPoll = async (req, res) => {
           { fingerprint },
           { ipAddress: clientIp }
         ]
-      });
+      }).select('optionIndex').lean();
 
       if (existingVote) {
         hasVoted = true;
@@ -138,6 +138,7 @@ const submitVote = async (req, res) => {
   try {
     const { id } = req.params;
     const { optionIndex, fingerprint } = req.body;
+    const io = req.app.get('io'); // Get io instance
 
     // Validation
     if (optionIndex === undefined || !fingerprint) {
@@ -167,7 +168,7 @@ const submitVote = async (req, res) => {
     const fingerprintVote = await Vote.findOne({
       pollId: id,
       fingerprint
-    });
+    }).select('_id').lean();
 
     if (fingerprintVote) {
       return res.status(403).json({ 
@@ -182,7 +183,7 @@ const submitVote = async (req, res) => {
       pollId: id,
       ipAddress: clientIp,
       votedAt: { $gte: twentyFourHoursAgo }
-    });
+    }).select('_id').lean();
 
     if (ipVote) {
       return res.status(403).json({ 
@@ -201,15 +202,13 @@ const submitVote = async (req, res) => {
 
     await vote.save();
 
-    // Atomically increment vote count
-    await Poll.findByIdAndUpdate(
+    // Atomically increment vote count and get updated poll
+    const updatedPoll = await Poll.findByIdAndUpdate(
       id,
       { $inc: { [`options.${optionIndex}.votes`]: 1 } },
       { new: true }
     );
 
-    // Fetch updated poll
-    const updatedPoll = await Poll.findById(id);
     const totalVotes = updatedPoll.options.reduce((sum, opt) => sum + opt.votes, 0);
 
     const pollData = {
@@ -230,8 +229,10 @@ const submitVote = async (req, res) => {
       poll: pollData
     });
 
-    // Return poll data for socket emission
-    return pollData;
+    // Emit vote update to all clients in the poll room
+    if (io) {
+      io.to(id).emit('voteUpdate', pollData);
+    }
   } catch (error) {
     console.error('Submit vote error:', error);
     

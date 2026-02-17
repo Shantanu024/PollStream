@@ -1,7 +1,3 @@
-/**
- * Extract client IP address from request
- * Handles proxy headers for deployment environments
- */
 const getClientIp = (req) => {
   // Check various headers that might contain the real IP
   const forwarded = req.headers['x-forwarded-for'];
